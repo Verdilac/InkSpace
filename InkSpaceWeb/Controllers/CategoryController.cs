@@ -1,17 +1,17 @@
+using InkSpace.DataAccess.Repository;
+using InkSpace.DataAccess.Repository.IRepository;
 using InkSpaceWeb.Data;
 using InkSpaceWeb.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InkSpaceWeb.Controllers;
 
-public class CategoryController(ApplicationDbContext dbContext) : Controller
+public class CategoryController(IUnitOfWork unitOfWork) : Controller
 {
-    private readonly ApplicationDbContext _db = dbContext;
-
     // GET
     public IActionResult Index() {
-        
-        List<Category> categories = _db.Categories.ToList();
+
+        List<Category> categories = unitOfWork.Category.GetAll().ToList();
         return View(categories);
     }
 
@@ -25,8 +25,8 @@ public class CategoryController(ApplicationDbContext dbContext) : Controller
         //     ModelState.AddModelError("Name", "Display order and name must be unique.");
         // }
         if (ModelState.IsValid) {
-            _db.Categories.Add(category);
-            _db.SaveChanges(); 
+            unitOfWork.Category.Add(category);
+            unitOfWork.Save();
             TempData["Success"] = "Category created successfully";
             return RedirectToAction("Index","Category");
         }
@@ -39,7 +39,7 @@ public class CategoryController(ApplicationDbContext dbContext) : Controller
         if (id is null or 0) {
             return NotFound();
         }
-        Category? categoryFromDb = _db.Categories.FirstOrDefault(c => c.Id == id);
+        Category? categoryFromDb = unitOfWork.Category.Get(item=>item.Id == id);
 
         if (categoryFromDb is null) {
             return NotFound();
@@ -52,8 +52,8 @@ public class CategoryController(ApplicationDbContext dbContext) : Controller
     public IActionResult Edit(Category category) {
         
         if (ModelState.IsValid) {
-            _db.Categories.Update(category);
-            _db.SaveChanges(); 
+            unitOfWork.Category.Update(category);
+            unitOfWork.Save();
             TempData["Success"] = "Category updated successfully";
             return RedirectToAction("Index","Category");
         }
@@ -67,7 +67,7 @@ public class CategoryController(ApplicationDbContext dbContext) : Controller
         if (id is null or 0) {
             return NotFound();
         }
-        Category? categoryFromDb = _db.Categories.FirstOrDefault(c => c.Id == id);
+        Category? categoryFromDb = unitOfWork.Category.Get(item=>item.Id == id);
 
         if (categoryFromDb is null) {
             return NotFound();
@@ -79,12 +79,12 @@ public class CategoryController(ApplicationDbContext dbContext) : Controller
     [HttpPost,ActionName("Delete")]
     public IActionResult DeletePost(int? id) {
         
-        Category? categoryFromDb = _db.Categories.FirstOrDefault(c => c.Id == id);
+        Category? categoryFromDb = unitOfWork.Category.Get(item=>item.Id == id);
         if (categoryFromDb is null) {
             return NotFound();
         }
-        _db.Categories.Remove(categoryFromDb);
-        _db.SaveChanges();
+        unitOfWork.Category.Remove(categoryFromDb);
+        unitOfWork.Save();
         TempData["Success"] = "Category deleted successfully";
         return RedirectToAction("Index","Category");
 
