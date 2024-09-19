@@ -15,4 +15,10 @@
       </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\InkSpace.DataAccess\InkSpace.DataAccess.csproj" />
+      <ProjectReference Include="..\InkSpace.Models\InkSpace.Models.csproj" />
+      <ProjectReference Include="..\InkSpace.Utility\InkSpace.Utility.csproj" />
+    </ItemGroup>
+
 </Project>
