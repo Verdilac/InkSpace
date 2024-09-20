@@ -5,7 +5,7 @@ using InkSpaceWeb.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InkSpaceWeb.Controllers;
-
+[Area("Admin")]
 public class CategoryController(IUnitOfWork unitOfWork) : Controller
 {
     // GET
@@ -40,6 +40,7 @@ public class CategoryController(IUnitOfWork unitOfWork) : Controller
             return NotFound();
         }
         Category? categoryFromDb = unitOfWork.Category.Get(item=>item.Id == id);
+        
 
         if (categoryFromDb is null) {
             return NotFound();
