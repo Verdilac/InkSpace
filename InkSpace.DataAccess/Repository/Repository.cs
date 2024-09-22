@@ -14,15 +14,29 @@ public class Repository<T>() : IRepository<T>
     public Repository(ApplicationDbContext db) : this() {
         _db = db;
         DbSet = _db.Set<T>();
+        _db.Products.Include(item => item.Category).Include(item => item.CategoryId);
     }
 
-    public IEnumerable<T> GetAll() {
+    public IEnumerable<T> GetAll(string? includeProperties = null) {
         IQueryable<T> query = DbSet;
+        if (!string.IsNullOrEmpty(includeProperties)) {
+            foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)) 
+            {
+                query = query.Include(includeProperty);
+            }
+        }
+
         return query.ToList();
     }
 
-    public T Get(Expression<Func<T, bool>> filter) {
+    public T Get(Expression<Func<T, bool>> filter,string? includeProperties = null) {
         IQueryable<T> query = DbSet;
+        if (!string.IsNullOrEmpty(includeProperties)) {
+            foreach (var includeProperty in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries)) 
+            {
+                query = query.Include(includeProperty);
+            }
+        }
         query = query.Where(filter);
         return query.FirstOrDefault()!;
     }

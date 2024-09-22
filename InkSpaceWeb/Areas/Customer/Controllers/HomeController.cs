@@ -1,20 +1,24 @@
 using System.Diagnostics;
+using InkSpace.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc;
 using InkSpaceWeb.Models;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
 
 namespace InkSpaceWeb.Controllers;
 
 [Area("Customer")]
-public class HomeController : Controller
+public class HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork) : Controller
 {
-    private readonly ILogger<HomeController> _logger;
 
-    public HomeController(ILogger<HomeController> logger) {
-        _logger = logger;
-    }
+
 
     public IActionResult Index() {
-        return View();
+        IEnumerable<Product> products = unitOfWork.Product.GetAll(includeProperties: "Category");
+        return View(products);
+    }
+    public IActionResult Details(int productId) {
+        Product product = unitOfWork.Product.Get(item=>item.Id==productId,includeProperties: "Category");
+        return View(product);
     }
 
     public IActionResult Privacy() {
