@@ -1,7 +1,9 @@
 using System.Diagnostics;
+using System.Security.Claims;
 using InkSpace.DataAccess.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc;
 using InkSpaceWeb.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.CodeAnalysis.Elfie.Serialization;
 
 namespace InkSpaceWeb.Controllers;
@@ -17,8 +19,38 @@ public class HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWo
         return View(products);
     }
     public IActionResult Details(int productId) {
-        Product product = unitOfWork.Product.Get(item=>item.Id==productId,includeProperties: "Category");
-        return View(product);
+        ShoppingCart cart = new ShoppingCart()
+        {
+            Product = unitOfWork.Product.Get(item => item.Id == productId, includeProperties: "Category"),
+            Count = 1,
+            ProductId = productId
+        };
+        
+        return View(cart);
+    }
+    
+    [HttpPost]
+    [Authorize]
+    public IActionResult Details(ShoppingCart shoppingCart) {
+        var claimsIdentity = (ClaimsIdentity)User.Identity!;
+        var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+        shoppingCart.ApplicationUserId= userId;
+        
+        ShoppingCart cartFromDb = unitOfWork.ShoppingCart.Get(u=>u.ApplicationUserId == userId && 
+                                                                 u.ProductId==shoppingCart.ProductId);
+        if (cartFromDb != null) {
+            //shopping cart exists
+            cartFromDb.Count += shoppingCart.Count;
+            unitOfWork.ShoppingCart.Update(cartFromDb);
+        }
+        else {
+            //add cart record
+            unitOfWork.ShoppingCart.Add(shoppingCart);
+        }
+        TempData["success"] = "Cart updated successfully";
+
+        unitOfWork.Save();
+        return RedirectToAction(nameof(Index));
     }
 
     public IActionResult Privacy() {

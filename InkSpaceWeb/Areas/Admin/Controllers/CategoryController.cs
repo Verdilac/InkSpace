@@ -1,16 +1,19 @@
 using InkSpace.DataAccess.Repository;
 using InkSpace.DataAccess.Repository.IRepository;
+using InkSpace.Utility;
 using InkSpaceWeb.Data;
 using InkSpaceWeb.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace InkSpaceWeb.Controllers;
 [Area("Admin")]
+[Authorize(Roles = SD.Role_Admin)]
 public class CategoryController(IUnitOfWork unitOfWork) : Controller
 {
     // GET
     public IActionResult Index() {
-
+ 
         List<Category> categories = unitOfWork.Category.GetAll().ToList();
         return View(categories);
     }

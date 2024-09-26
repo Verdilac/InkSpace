@@ -1,6 +1,8 @@
 using InkSpace.DataAccess.Repository.IRepository;
 using InkSpace.Models.ViewModels;
+using InkSpace.Utility;
 using InkSpaceWeb.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -8,6 +10,7 @@ namespace InkSpaceWeb.Controllers;
 
 
 [Area("Admin")]
+[Authorize(Roles = SD.Role_Admin)]
 public class ProductController(IUnitOfWork unitOfWork,IWebHostEnvironment webHostEnvironment) : Controller
 {
     public IActionResult Index() {
