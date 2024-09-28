@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Security.Claims;
 using InkSpace.DataAccess.Repository.IRepository;
+using InkSpace.Utility;
 using Microsoft.AspNetCore.Mvc;
 using InkSpaceWeb.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -15,6 +16,7 @@ public class HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWo
 
 
     public IActionResult Index() {
+
         IEnumerable<Product> products = unitOfWork.Product.GetAll(includeProperties: "Category");
         return View(products);
     }
@@ -42,14 +44,18 @@ public class HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWo
             //shopping cart exists
             cartFromDb.Count += shoppingCart.Count;
             unitOfWork.ShoppingCart.Update(cartFromDb);
+            unitOfWork.Save();
         }
         else {
             //add cart record
             unitOfWork.ShoppingCart.Add(shoppingCart);
+            unitOfWork.Save();
+            HttpContext.Session.SetInt32(SD.SessionCart,
+                unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == userId).Count());
         }
         TempData["success"] = "Cart updated successfully";
 
-        unitOfWork.Save();
+  
         return RedirectToAction(nameof(Index));
     }
 
