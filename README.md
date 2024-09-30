@@ -1,5 +1,5 @@
 # ✒️ InkSpace - E-Commerce Platform for Books
-[InkSpace Azure Host](https://inkspace-web.azurewebsites.net/)
+[InkSpace Azure Host](https://inkspace-webapp.azurewebsites.net/)
 
 Welcome to **InkSpace**, an e-commerce platform where individuals and businesses can purchase books. Users can create accounts, explore a wide variety of books, and place orders. Companies can register to order books in bulk, and administrators have full control over managing orders and inventory.
 
